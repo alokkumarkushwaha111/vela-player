@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>VELA PRO</title>
+<style>
+body{margin:0;background:#03060f;color:#d4eaf7;font-family:sans-serif}
+header{padding:15px;text-align:center;font-weight:bold}
+input{width:70%;padding:10px;border-radius:8px;border:none}
+button{padding:10px;border:none;border-radius:8px;background:#00d4ff;color:#000;margin-left:5px}
+#player{margin-top:20px}
+.list{padding:10px}
+.item{padding:8px;border-bottom:1px solid #222;cursor:pointer}
+</style>
+</head>
+<body>
+
+<header>VELA PRO AI PLAYER</header>
+
+<div style="text-align:center">
+<input id="input" placeholder="Search ya YouTube link paste karo"/>
+<button onclick="handleInput()">Play</button>
+</div>
+
+<div id="player"></div>
+
+<div class="list" id="queue"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+let player;
+let queue=[];
+
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player('player',{
+    height:'360',width:'640',
+    playerVars:{autoplay:1,controls:1}
+  });
+}
+
+function extractId(url){
+  const r=/(?:youtu.be\/|v=)([\w-]{11})/;
+  const m=url.match(r);
+  return m?m[1]:null;
+}
+
+async function handleInput(){
+  const val=document.getElementById('input').value.trim();
+  let vid=extractId(val);
+
+  if(!vid){
+    const res=await fetch(`https://ytsearch.vercel.app/api?q=${encodeURIComponent(val)}`);
+    const data=await res.json();
+    if(data.videos && data.videos.length>0){
+      vid=data.videos[0].videoId;
+    }
+  }
+
+  if(vid){
+    queue.push(vid);
+    renderQueue();
+    playVideo(vid);
+  }
+}
+
+function playVideo(id){
+  if(player && player.loadVideoById){
+    player.loadVideoById(id);
+  }
+}
+
+function renderQueue(){
+  const q=document.getElementById('queue');
+  q.innerHTML=queue.map(v=>`<div class="item" onclick="playVideo('${v}')">${v}</div>`).join('');
+}
+</script>
+
+</body>
+</html>
