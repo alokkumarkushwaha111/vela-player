@@ -737,8 +737,19 @@ function modalSearch(){
 // HELPERS
 function fmt(s){s=Math.floor(s||0);return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
 function extractId(url){
-  var p=[/youtu\.be\/([a-zA-Z0-9_-]{11})/,/[?&]v=([a-zA-Z0-9_-]{11})/,/embed\/([a-zA-Z0-9_-]{11})/,/^([a-zA-Z0-9_-]{11})$/];
-  for(var i=0;i<p.length;i++){var m=(url||'').match(p[i]);if(m)return m[1];}return null;
+  var s=(url||'').trim();
+  // All common YouTube URL patterns including shorts
+  var p=[
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+    /[?&]v=([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for(var i=0;i<p.length;i++){var m=s.match(p[i]);if(m)return m[1];}
+  return null;
 }
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function showToast(msg,type){
